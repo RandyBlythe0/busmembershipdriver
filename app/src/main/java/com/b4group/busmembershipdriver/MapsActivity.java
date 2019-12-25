@@ -218,11 +218,12 @@ public class MapsActivity extends AppCompatActivity
 
     public String api_call(int pull,int bus_id, double latitude, double longitude){
         RequestQueue queue = Volley.newRequestQueue(this);
+        String controller_string = "track/";
         String api_string = pull == 1 ? "pull_coordinates" : "push_coordinates";
         api_string += "?bus_id=" + bus_id;
         api_string += "&x=" + latitude;
         api_string += "&y=" + longitude;
-        StringRequest stringRequest = new StringRequest(Request.Method.GET, Global.base_url+api_string,
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, Global.base_url+controller_string+api_string,
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
