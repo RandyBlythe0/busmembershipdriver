@@ -11,7 +11,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.AuthFailureError;
@@ -21,65 +20,47 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
-import com.google.android.gms.maps.model.LatLng;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public class LoginActivity extends AppCompatActivity {
+public class RegisterActivity extends AppCompatActivity {
 
-    EditText userEmail,userPassword;
-    Button sign_in_button;
+    EditText driverName,driverEmail,driverPassword,driverMobile,driverAddress;
+    Button register_button;
     ProgressBar progressBar;
-    TextView clickToRegister;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_login);
-        setTitle(R.string.title_activity_login);
+        setContentView(R.layout.activity_register);
+        setTitle(R.string.title_activity_register);
 
-        userEmail = (EditText) findViewById(R.id.driverEmail);
-        userPassword = (EditText) findViewById(R.id.driverPassword);
-        progressBar = (ProgressBar) findViewById(R.id.progressBar1);
-        clickToRegister = (TextView) findViewById(R.id.clickToRegister);
-//        Toolbar toolbar = findViewById(R.id.toolbar);
-//        setSupportActionBar(toolbar);
-//
-//        FloatingActionButton fab = findViewById(R.id.fab);
-//        fab.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-//                        .setAction("Action", null).show();
-//            }
-//        });
-        sign_in_button = (Button) findViewById(R.id.sign_in_button);
-        sign_in_button.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View view) {
+        driverName =(EditText) findViewById(R.id.driverName);
+        driverEmail = (EditText) findViewById(R.id.driverEmail);
+        driverPassword =(EditText) findViewById(R.id.driverPassword);
+        driverMobile =(EditText) findViewById(R.id.driverMobile);
+        driverAddress =(EditText) findViewById(R.id.driverAddress);
+
+        register_button = (Button) findViewById(R.id.register_button);
+        progressBar =(ProgressBar) findViewById(R.id.progressBar1);
+
+        register_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
                 progressBar.setVisibility(View.VISIBLE);
-                sign_in_button.setEnabled(false);
                 api_call();
             }
-
         });
 
-        clickToRegister.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View view) {
-                Intent myIntent = new Intent(getBaseContext(), RegisterActivity.class);
-                startActivityForResult(myIntent, 0);
-            }
-
-        });
     }
 
     public String api_call(){
         RequestQueue queue = Volley.newRequestQueue(this);
-        String controller_name="driver/login";
+        String controller_name="driver/register";
         //String api_string = pull == 1 ? "pull_coordinates" : "push_coordinates";
 //        api_string += "?bus_id=" + bus_id;
 //        api_string += "&x=" + latitude;
@@ -91,7 +72,6 @@ public class LoginActivity extends AppCompatActivity {
                         // Display the first 500 characters of the response string.
                         //textView.setText("Response is: "+ response.substring(0,500));
                         progressBar.setVisibility(View.GONE);
-                        sign_in_button.setEnabled(true);
                         Log.i("Json Response",response.toString());
                         Toast.makeText(getApplicationContext(), response.toString(), Toast.LENGTH_SHORT).show();
                         try {
@@ -120,10 +100,12 @@ public class LoginActivity extends AppCompatActivity {
             }
         }){
             @Override
-            protected Map<String, String> getParams() throws AuthFailureError{
+            protected Map<String, String> getParams() throws AuthFailureError {
                 Map<String, String> params = new HashMap<>();
-                params.put("email", userEmail.getText().toString());
-                params.put("password", userPassword.getText().toString());
+                params.put("name", driverEmail.getText().toString());
+                params.put("email", driverPassword.getText().toString());
+                params.put("mobile", driverMobile.getText().toString());
+                params.put("address", driverAddress.getText().toString());
                 params.put("api", "1");
                 return params;
             }

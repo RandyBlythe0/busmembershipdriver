@@ -15,4 +15,5 @@
         completions."
     </string>
     <string name="not_registered">Not Registered yet? Click here to register</string>
+    <string name="title_activity_register">Register Activity</string>
 </resources>
