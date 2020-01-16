@@ -82,7 +82,7 @@ public class RegisterActivity extends AppCompatActivity {
                             Log.i("Json Response",obj.toString());
                             Log.i("Extract", obj.getString("result"));
                             if(obj.getString("result").equals("Success")){
-                                Intent myIntent = new Intent(getBaseContext(), MapsActivity.class);
+                                Intent myIntent = new Intent(getBaseContext(), LoginActivity.class);
                                 startActivityForResult(myIntent, 0);
                             }
 //                            }
