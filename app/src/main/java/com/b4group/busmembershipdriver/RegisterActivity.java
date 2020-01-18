@@ -102,10 +102,11 @@ public class RegisterActivity extends AppCompatActivity {
             @Override
             protected Map<String, String> getParams() throws AuthFailureError {
                 Map<String, String> params = new HashMap<>();
-                params.put("name", driverEmail.getText().toString());
-                params.put("email", driverPassword.getText().toString());
+                params.put("name", driverName.getText().toString());
+                params.put("email", driverEmail.getText().toString());
                 params.put("mobile", driverMobile.getText().toString());
                 params.put("address", driverAddress.getText().toString());
+                params.put("password", driverPassword.getText().toString());
                 params.put("api", "1");
                 return params;
             }

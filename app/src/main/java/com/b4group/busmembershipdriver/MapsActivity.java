@@ -2,16 +2,19 @@ package com.b4group.busmembershipdriver;
 
 import android.Manifest;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Build;
 import android.os.Looper;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.View;
 import android.widget.Toast;
 
 import com.android.volley.Request;
@@ -52,19 +55,27 @@ public class MapsActivity extends AppCompatActivity
     FusedLocationProviderClient mFusedLocationClient;
     boolean zoom_reset = true;
     //String base_url = Global.base_url;
+    FloatingActionButton settingButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
-
         getSupportActionBar().setTitle("Map Location Activity");
 
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
-
         mapFrag = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         mapFrag.getMapAsync(this);
         globalLatLng = new LatLng(0,0);
+
+        settingButton = (FloatingActionButton) findViewById(R.id.settingButton);
+        settingButton.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View view) {
+                Intent myIntent = new Intent(getBaseContext(), SettingsActivity.class);
+                startActivityForResult(myIntent, 0);
+            }
+
+        });
     }
 
     @Override
