@@ -80,7 +80,7 @@ public class LoginActivity extends AppCompatActivity {
 
     public String api_call(){
         RequestQueue queue = Volley.newRequestQueue(this);
-        String controller_name="bus/getOfflineBuses";
+        String controller_name="driver/login";
         //String api_string = pull == 1 ? "pull_coordinates" : "push_coordinates";
 //        api_string += "?bus_id=" + bus_id;
 //        api_string += "&x=" + latitude;
