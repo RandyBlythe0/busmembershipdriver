@@ -64,6 +64,7 @@ public class LoginActivity extends AppCompatActivity {
                 progressBar.setVisibility(View.VISIBLE);
                 sign_in_button.setEnabled(false);
                 api_call();
+
             }
 
         });
@@ -79,7 +80,7 @@ public class LoginActivity extends AppCompatActivity {
 
     public String api_call(){
         RequestQueue queue = Volley.newRequestQueue(this);
-        String controller_name="driver/login";
+        String controller_name="bus/getOfflineBuses";
         //String api_string = pull == 1 ? "pull_coordinates" : "push_coordinates";
 //        api_string += "?bus_id=" + bus_id;
 //        api_string += "&x=" + latitude;
@@ -90,8 +91,7 @@ public class LoginActivity extends AppCompatActivity {
                     public void onResponse(String response) {
                         // Display the first 500 characters of the response string.
                         //textView.setText("Response is: "+ response.substring(0,500));
-                        progressBar.setVisibility(View.GONE);
-                        sign_in_button.setEnabled(true);
+
                         Log.i("Json Response",response.toString());
                         Toast.makeText(getApplicationContext(), response.toString(), Toast.LENGTH_SHORT).show();
                         try {
@@ -109,7 +109,8 @@ public class LoginActivity extends AppCompatActivity {
                         } catch (JSONException e) {
                             Log.e("Json Response",e.toString());
                         }
-
+                        progressBar.setVisibility(View.GONE);
+                        sign_in_button.setEnabled(true);
                     }
                 }, new Response.ErrorListener() {
             @Override
@@ -117,6 +118,8 @@ public class LoginActivity extends AppCompatActivity {
                 //textView.setText("That didn't work!");
                 Log.e("API Response", "Error in API Request" + error.toString());
                 Toast.makeText(getApplicationContext(), error.toString(), Toast.LENGTH_SHORT).show();
+                progressBar.setVisibility(View.GONE);
+                sign_in_button.setEnabled(true);
             }
         }){
             @Override
