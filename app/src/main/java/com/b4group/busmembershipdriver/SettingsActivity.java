@@ -38,9 +38,9 @@ public class SettingsActivity extends AppCompatActivity {
         optionList.insert("Select One",0);
     }
 
-    public String api_call(){
+    public String getOfflineBuses(){
         RequestQueue queue = Volley.newRequestQueue(this);
-        String controller_name="driver/register";
+        String controller_name="bus/getOfflineBuses";
         //String api_string = pull == 1 ? "pull_coordinates" : "push_coordinates";
 //        api_string += "?bus_id=" + bus_id;
 //        api_string += "&x=" + latitude;
