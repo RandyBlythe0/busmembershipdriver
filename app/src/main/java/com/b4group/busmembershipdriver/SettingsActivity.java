@@ -5,6 +5,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 import android.widget.Toast;
@@ -17,30 +19,64 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
-public class SettingsActivity extends AppCompatActivity {
+public class SettingsActivity extends AppCompatActivity implements OnItemSelectedListener{
 
     Spinner optionSetBusSpinner;
-    ArrayAdapter<String> optionList;
+    List<String> spinnerArray;
+    HashMap<String, Integer> spinnerHashMap;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
 
+        //map views by id
         optionSetBusSpinner = (Spinner) findViewById(R.id.optionSetBusSpinner);
-        optionSetBusSpinner.setAdapter(optionList);
-        optionList.insert("Select One",0);
+
+
+        spinnerArray =  new ArrayList<String>();
+        spinnerArray.add("Select One");
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(
+                this, android.R.layout.simple_spinner_item, spinnerArray);
+        optionSetBusSpinner.setAdapter(adapter);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+
+        spinnerHashMap = new HashMap<String, Integer>();
+        spinnerHashMap.put("Select One", 0);
+
+//        optionSetBusSpinner.setOnItemSelectedListener(new OnItemSelectedListener() {
+//            @Override
+//            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+//                String msg = (String) parent.getItemAtPosition(position);
+//
+//                Toast.makeText(getApplicationContext(), msg ,Toast.LENGTH_SHORT).show();
+//            }
+//
+//            @Override
+//            public void onNothingSelected(AdapterView<?> parent) {
+//
+//            }
+//        });
+        optionSetBusSpinner.setOnItemSelectedListener(this);
+
+//        optionSetBusSpinner = (Spinner) findViewById(R.id.optionSetBusSpinner);
+//        optionSetBusSpinner.setAdapter(optionList);
+        //optionList.insert("Select One",0);
+        listBuses();
     }
 
-    public String getOfflineBuses(){
+    public String listBuses(){
         RequestQueue queue = Volley.newRequestQueue(this);
-        String controller_name="bus/getOfflineBuses";
+        String controller_name="bus/listBuses";
         //String api_string = pull == 1 ? "pull_coordinates" : "push_coordinates";
 //        api_string += "?bus_id=" + bus_id;
 //        api_string += "&x=" + latitude;
@@ -59,15 +95,21 @@ public class SettingsActivity extends AppCompatActivity {
 //                            for (int i=0;i<jArray.length();i++){
                             JSONObject obj = new JSONObject(response);
 //                              globalLatLng = new LatLng(obj.getDouble("x"),obj.getDouble("y"));
-                            Log.i("Json Response",obj.toString());
-                            Log.i("Extract", obj.getString("result"));
-                            if(obj.getString("result").equals("Success")){
-                                Intent myIntent = new Intent(getBaseContext(), LoginActivity.class);
-                                startActivityForResult(myIntent, 0);
+                            Log.i("Json Try Parse Response",obj.toString());
+                            Log.i("Extract", obj.getJSONArray("buses").toString());
+
+                            JSONArray busArray = new JSONArray();
+                            busArray = obj.getJSONArray("buses");
+                            for (int i=0;i<busArray.length();i++){
+                                JSONObject bus = busArray.getJSONObject(i);
+                                spinnerArray.add(bus.getString("passing_number"));
+                                spinnerHashMap.put(bus.getString("passing_number"),bus.getInt("id"));
                             }
+
+
 //                            }
                         } catch (JSONException e) {
-                            Log.e("Json Response",e.toString());
+                            Log.e("Json Exception",e.toString());
                         }
 
                     }
@@ -91,5 +133,19 @@ public class SettingsActivity extends AppCompatActivity {
 // Add the request to the RequestQueue.
         queue.add(stringRequest);
         return "";
+    }
+
+    @Override
+    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+        String msg = (String) parent.getItemAtPosition(position);
+        msg += "is At";
+        msg += spinnerHashMap.get((String) parent.getItemAtPosition(position));
+        Toast.makeText(getApplicationContext(), msg ,Toast.LENGTH_SHORT).show();
+        ((MapsActivity)this.getApplicationContext()).setBusId(spinnerHashMap.get((String) parent.getItemAtPosition(position)));
+    }
+
+    @Override
+    public void onNothingSelected(AdapterView<?> parent) {
+
     }
 }

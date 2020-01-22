@@ -56,6 +56,7 @@ public class MapsActivity extends AppCompatActivity
     boolean zoom_reset = true;
     //String base_url = Global.base_url;
     FloatingActionButton settingButton;
+    int bus_id;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,6 +74,7 @@ public class MapsActivity extends AppCompatActivity
             public void onClick(View view) {
                 Intent myIntent = new Intent(getBaseContext(), SettingsActivity.class);
                 startActivityForResult(myIntent, 0);
+         bus_id = 0;
             }
 
         });
@@ -136,7 +138,7 @@ public class MapsActivity extends AppCompatActivity
                 //    mCurrLocationMarker.remove();
                 //}
 
-                api_call(0, 2, location.getLatitude(), location.getLongitude());
+                api_call(0, bus_id, location.getLatitude(), location.getLongitude());
 
                 //Place current location marker
                 LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
@@ -227,7 +229,7 @@ public class MapsActivity extends AppCompatActivity
         }
     }
 
-    public String api_call(int pull,int bus_id, double latitude, double longitude){
+    public String api_call(int pull, final int bus_id, double latitude, double longitude){
         RequestQueue queue = Volley.newRequestQueue(this);
         String controller_string = "track/";
         String api_string = pull == 1 ? "pull_coordinates" : "push_coordinates";
@@ -240,7 +242,7 @@ public class MapsActivity extends AppCompatActivity
                     public void onResponse(String response) {
                         // Display the first 500 characters of the response string.
                         //textView.setText("Response is: "+ response.substring(0,500));
-                        Log.i("Json Response",response.toString());
+                        Log.i("Json Response", "Sent" + bus_id +" Received"+ response.toString());
                         try {
                             JSONArray jArray = new JSONArray(response);
                             for (int i=0;i<jArray.length();i++){
@@ -264,5 +266,9 @@ public class MapsActivity extends AppCompatActivity
 // Add the request to the RequestQueue.
         queue.add(stringRequest);
         return "";
+    }
+
+    public void setBusId(int bus_id){
+        this.bus_id = bus_id;
     }
 }
