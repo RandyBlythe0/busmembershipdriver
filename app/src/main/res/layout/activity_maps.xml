@@ -15,6 +15,6 @@
         android:layout_gravity="end|bottom"
         android:layout_margin="16dp"
         android:contentDescription="@string/settings"
-        android:src="@android:drawable/ic_lock_power_off" />
+        android:src="@drawable/ic_settings" />
 
 </fragment>
