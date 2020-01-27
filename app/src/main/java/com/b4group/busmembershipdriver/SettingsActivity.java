@@ -1,6 +1,7 @@
 package com.b4group.busmembershipdriver;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -33,6 +34,8 @@ public class SettingsActivity extends AppCompatActivity implements OnItemSelecte
     Spinner optionSetBusSpinner;
     List<String> spinnerArray;
     HashMap<String, Integer> spinnerHashMap;
+    SharedPreferences sharedPreferences;
+    SharedPreferences.Editor sharedPreferencesEditor;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,6 +75,24 @@ public class SettingsActivity extends AppCompatActivity implements OnItemSelecte
 //        optionSetBusSpinner.setAdapter(optionList);
         //optionList.insert("Select One",0);
         listBuses();
+
+        sharedPreferences = getApplicationContext().getSharedPreferences("busmembershipdriver", 0);
+        sharedPreferencesEditor = sharedPreferences.edit();
+
+        if(sharedPreferences.contains("BusPassingNumber")){
+            optionSetBusSpinner.setSelection(getIndex(optionSetBusSpinner, sharedPreferences.getString("BusPassingNumber","N/A")));
+            Log.i("PrefFound",sharedPreferences.getString("BusPassingNumber","N/A"));
+        }
+    }
+
+private int getIndex(Spinner spinner, String myString){
+        for (int i=0;i<spinner.getCount();i++){
+            if (spinner.getItemAtPosition(i).toString().equalsIgnoreCase(myString)){
+                return i;
+            }
+        }
+
+        return 0;
     }
 
     public String listBuses(){
@@ -138,10 +159,23 @@ public class SettingsActivity extends AppCompatActivity implements OnItemSelecte
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
         String msg = (String) parent.getItemAtPosition(position);
+        sharedPreferencesEditor.putString("BusPassingNumber",msg);
+        sharedPreferencesEditor.putInt("BusId",spinnerHashMap.get((String) parent.getItemAtPosition(position)));
+        sharedPreferencesEditor.commit();
+        Log.i("SharedPreferences",sharedPreferences.getString("BusPassingNumber","N/A"));
+        Log.i("SharedPreferences",""+sharedPreferences.getInt("BusId",0));
+        //Log.i("SharedPreferences",sharedPreferences.getAll().toString());
         msg += "is At";
         msg += spinnerHashMap.get((String) parent.getItemAtPosition(position));
-        Toast.makeText(getApplicationContext(), msg ,Toast.LENGTH_SHORT).show();
-        ((MapsActivity)this.getApplicationContext()).setBusId(spinnerHashMap.get((String) parent.getItemAtPosition(position)));
+        Log.i("Spinner Selection",  msg);
+
+        Map<String, ?> allEntries = sharedPreferences.getAll();
+        for (Map.Entry<String, ?> entry : allEntries.entrySet()) {
+            Log.i("SharedPreferences", entry.getKey() + ": " + entry.getValue().toString());
+        }
+
+        //((MapsActivity)this.getApplicationContext()).setBusId(spinnerHashMap.get((String) parent.getItemAtPosition(position)));
+
     }
 
     @Override

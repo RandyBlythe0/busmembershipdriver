@@ -3,6 +3,7 @@ package com.b4group.busmembershipdriver;
 import android.Manifest;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Build;
@@ -17,6 +18,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
+import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
@@ -41,7 +43,9 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class MapsActivity extends AppCompatActivity
         implements OnMapReadyCallback {
@@ -57,6 +61,8 @@ public class MapsActivity extends AppCompatActivity
     //String base_url = Global.base_url;
     FloatingActionButton settingButton;
     int bus_id;
+    SharedPreferences sharedPreferences;
+    SharedPreferences.Editor sharedPreferencesEditor;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,12 +75,19 @@ public class MapsActivity extends AppCompatActivity
         mapFrag.getMapAsync(this);
         globalLatLng = new LatLng(0,0);
 
+        sharedPreferences = getApplicationContext().getSharedPreferences("busmembershipdriver", 0);
+        sharedPreferencesEditor = sharedPreferences.edit();
+
+        if(sharedPreferences.contains("BusId")){
+            //optionSetBusSpinner.setSelection(getIndex(optionSetBusSpinner, sharedPreferences.getString("BusPassingNumber","N/A")));
+            Log.i("PrefFound",""+sharedPreferences.getInt("BusId",0));
+        }
+
         settingButton = (FloatingActionButton) findViewById(R.id.settingButton);
         settingButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
                 Intent myIntent = new Intent(getBaseContext(), SettingsActivity.class);
                 startActivityForResult(myIntent, 0);
-         bus_id = 0;
             }
 
         });
@@ -233,7 +246,7 @@ public class MapsActivity extends AppCompatActivity
         RequestQueue queue = Volley.newRequestQueue(this);
         String controller_string = "track/";
         String api_string = pull == 1 ? "pull_coordinates" : "push_coordinates";
-        api_string += "?bus_id=" + bus_id;
+        api_string += "?bus_id=" + sharedPreferences.getInt("BusId",0);
         api_string += "&x=" + latitude;
         api_string += "&y=" + longitude;
         StringRequest stringRequest = new StringRequest(Request.Method.GET, Global.base_url+controller_string+api_string,
@@ -242,7 +255,7 @@ public class MapsActivity extends AppCompatActivity
                     public void onResponse(String response) {
                         // Display the first 500 characters of the response string.
                         //textView.setText("Response is: "+ response.substring(0,500));
-                        Log.i("Json Response", "Sent" + bus_id +" Received"+ response.toString());
+                        Log.i("Json Response", "Sent" + sharedPreferences.getInt("BusId",0) +" Received"+ response.toString());
                         try {
                             JSONArray jArray = new JSONArray(response);
                             for (int i=0;i<jArray.length();i++){
@@ -268,7 +281,59 @@ public class MapsActivity extends AppCompatActivity
         return "";
     }
 
-    public void setBusId(int bus_id){
-        this.bus_id = bus_id;
+    public String takeBusOffline(){
+        RequestQueue queue = Volley.newRequestQueue(this);
+        String controller_name="track/takeBusOffline";
+        //String api_string = pull == 1 ? "pull_coordinates" : "push_coordinates";
+//        api_string += "?bus_id=" + bus_id;
+//        api_string += "&x=" + latitude;
+//        api_string += "&y=" + longitude;
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, Global.base_url+controller_name,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        // Display the first 500 characters of the response string.
+                        //textView.setText("Response is: "+ response.substring(0,500));
+                        //progressBar.setVisibility(View.GONE);
+                        Log.i("Json Response",response.toString());
+                        Toast.makeText(getApplicationContext(), response.toString(), Toast.LENGTH_SHORT).show();
+                        try {
+//                            JSONArray jArray = new JSONArray(response);
+//                            for (int i=0;i<jArray.length();i++){
+                            JSONObject obj = new JSONObject(response);
+//                              globalLatLng = new LatLng(obj.getDouble("x"),obj.getDouble("y"));
+                            Log.i("Json Response",obj.toString());
+                            Log.i("Extract", obj.getString("result"));
+                            if(obj.getString("result").equals("Success")){
+                                Intent myIntent = new Intent(getBaseContext(), LoginActivity.class);
+                                startActivityForResult(myIntent, 0);
+                            }
+//                            }
+                        } catch (JSONException e) {
+                            Log.e("Json Response",e.toString());
+                        }
+
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                //textView.setText("That didn't work!");
+                Log.e("API Response", "Error in API Request" + error.toString());
+                Toast.makeText(getApplicationContext(), error.toString(), Toast.LENGTH_SHORT).show();
+            }
+        }){
+            @Override
+            protected Map<String, String> getParams() throws AuthFailureError {
+                Map<String, String> params = new HashMap<>();
+                params.put("bus_id", ""+sharedPreferences.getInt("BusId",0));
+                params.put("api", "1");
+                return params;
+            }
+        };
+
+// Add the request to the RequestQueue.
+        queue.add(stringRequest);
+        return "";
     }
+
 }
